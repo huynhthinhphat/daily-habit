@@ -1,0 +1,534 @@
+/* ==========================================================================
+   Matrix Table Styles (Habit & Activity Grid)
+   ========================================================================== */
+
+.matrix-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: auto;
+  max-height: calc(100vh - 280px);
+  min-height: 420px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+}
+
+.matrix-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.matrix-container::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+.matrix-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Sticky Headers & Columns
+   ========================================================================== */
+
+/* Top Header Row (Sticky top) */
+.matrix-table thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg-surface-elevated);
+  border-bottom: 2px solid var(--border-medium);
+  padding: 0.6rem 0.4rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+/* Top-Left Corner Cell (Highest Z-Index) */
+.matrix-table thead tr th.corner-header {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  background: var(--bg-surface-elevated);
+  min-width: 280px;
+  max-width: 320px;
+  width: 300px;
+  text-align: left;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
+  border-right: 1px solid var(--border-medium);
+}
+
+/* Sticky Activity Column (Leftmost column) */
+.matrix-table tbody tr td.col-activity-name {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--bg-surface);
+  min-width: 280px;
+  max-width: 320px;
+  width: 300px;
+  text-align: left;
+  padding: 0.75rem 1.25rem;
+  border-right: 1px solid var(--border-medium);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.12);
+  transition: background-color var(--transition-fast);
+}
+
+.matrix-table tbody tr:hover td.col-activity-name {
+  background: var(--bg-surface-hover);
+}
+
+/* Bottom Summary Sticky Corner */
+.matrix-table tfoot tr td.corner-footer {
+  position: sticky;
+  left: 0;
+  bottom: 0;
+  z-index: 35;
+  background: var(--bg-surface-elevated);
+  border-right: 1px solid var(--border-medium);
+  border-top: 2px solid var(--border-medium);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
+  text-align: left;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+}
+
+.matrix-table tfoot tr td {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  background: var(--bg-surface-elevated);
+  border-top: 2px solid var(--border-medium);
+  padding: 0.6rem 0.25rem;
+  font-weight: 600;
+}
+
+/* Summary Right Column (Total & Stats) */
+.matrix-table th.col-stat-header,
+.matrix-table td.col-stat-cell {
+  position: sticky;
+  right: 0;
+  z-index: 12;
+  background: var(--bg-surface-subtle);
+  min-width: 110px;
+  border-left: 1px solid var(--border-medium);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0.75rem;
+}
+
+.matrix-table thead th.col-stat-header {
+  z-index: 40;
+  background: var(--bg-surface-elevated);
+}
+
+.matrix-table tfoot td.col-stat-cell {
+  z-index: 35;
+  background: var(--bg-surface-elevated);
+}
+
+/* ==========================================================================
+   Header Day Cells Styling
+   ========================================================================== */
+.day-header-cell {
+  min-width: 42px;
+  max-width: 44px;
+  padding: 0.4rem 0.2rem !important;
+  border-right: 1px solid var(--border-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+.day-header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.day-name {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.day-num {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+  padding: 3px 0;
+}
+
+/* Weekend Tint */
+.is-weekend {
+  background-color: var(--weekend-bg);
+}
+
+.is-weekend .day-name {
+  color: var(--rose);
+}
+
+/* Today Column Highlight */
+.is-today {
+  background-color: var(--today-bg) !important;
+}
+
+.is-today .day-num {
+  color: #ffffff;
+  background: var(--primary);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.is-today .day-name {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Prior to plan start (Trước ngày bắt đầu) */
+.is-prior-to-start {
+  opacity: 0.45;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.badge-start-today {
+  background: var(--emerald-subtle) !important;
+  color: var(--emerald) !important;
+  border-color: var(--emerald) !important;
+}
+
+/* ==========================================================================
+   Activity Row Details (Left Column)
+   ========================================================================== */
+.activity-row-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.activity-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.activity-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.activity-title {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9125rem;
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.activity-title:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.activity-inline-input {
+  font-family: inherit;
+  font-size: 0.9125rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  width: 100%;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.activity-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.activity-category-tag {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.activity-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.matrix-table tbody tr:hover .activity-actions {
+  opacity: 1;
+}
+
+.action-btn-mini {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.action-btn-mini:hover {
+  color: var(--text-main);
+  background: var(--bg-surface-elevated);
+}
+
+.action-btn-mini.btn-delete:hover {
+  color: var(--rose);
+  background: var(--rose-subtle);
+}
+
+/* ==========================================================================
+   Matrix Grid Cells & Checkboxes
+   ========================================================================== */
+.matrix-cell {
+  min-width: 42px;
+  max-width: 44px;
+  height: 52px;
+  padding: 0;
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+  vertical-align: middle;
+  transition: background-color var(--transition-fast);
+}
+
+.matrix-table tbody tr:hover .matrix-cell {
+  background-color: rgba(255, 255, 255, 0.015);
+}
+
+.matrix-cell:hover {
+  background-color: var(--primary-subtle) !important;
+}
+
+/* Checkbox Toggle Button */
+.matrix-checkbox-btn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.checkbox-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.8px solid var(--border-medium);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #ffffff;
+  position: relative;
+}
+
+.matrix-checkbox-btn:hover .checkbox-box {
+  border-color: var(--primary);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px var(--primary-glow);
+}
+
+/* Checked State */
+.matrix-checkbox-btn.is-checked .checkbox-box {
+  background: var(--habit-color, var(--primary));
+  border-color: var(--habit-color, var(--primary));
+  transform: scale(1.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 0 12px var(--habit-glow, var(--primary-glow));
+}
+
+.checkbox-icon {
+  width: 14px;
+  height: 14px;
+  stroke: #ffffff;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.matrix-checkbox-btn.is-checked .checkbox-icon {
+  transform: scale(1);
+}
+
+/* Checkbox pulse bounce effect */
+@keyframes checkBounce {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.22); }
+  100% { transform: scale(1.05); }
+}
+
+.matrix-checkbox-btn.is-checked .checkbox-box.animate-bounce {
+  animation: checkBounce 0.3s ease forwards;
+}
+
+/* ==========================================================================
+   Reason & Note Indicators on Checkbox Cell
+   ========================================================================== */
+.cell-note-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-muted);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  z-index: 5;
+  border: 1px solid var(--border-subtle);
+  padding: 0;
+}
+
+.matrix-cell:hover .cell-note-btn {
+  opacity: 0.85;
+}
+
+.cell-note-btn:hover {
+  opacity: 1 !important;
+  color: var(--amber);
+  background: var(--bg-surface-elevated);
+  transform: scale(1.2);
+}
+
+/* Cell Has Note */
+.matrix-cell.has-note {
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.matrix-cell.has-note .cell-note-btn {
+  opacity: 1;
+  color: var(--amber);
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.cell-note-dot {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Row & Column Summary Stats
+   ========================================================================== */
+.row-progress-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.row-progress-label {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--text-main);
+}
+
+.row-progress-bar-bg {
+  width: 100%;
+  height: 5px;
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.row-progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--emerald);
+  transition: width 0.3s ease;
+}
+
+/* Daily summary in tfoot */
+.day-summary-cell {
+  border-right: 1px solid var(--border-subtle);
+  padding: 0.4rem 0.2rem;
+  font-size: 0.75rem;
+}
+
+.day-summary-count {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--text-main);
+  display: block;
+}
+
+.day-summary-rate {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}

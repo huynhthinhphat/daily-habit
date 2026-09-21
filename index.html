@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Habit & Activity Matrix | Bảng Theo Dõi Hoạt Động Hàng Ngày</title>
+  <meta name="description" content="Ứng dụng theo dõi hoạt động và thói quen hàng ngày dạng bảng ma trận trực quan, tiện lợi, tự động lưu dữ liệu.">
+  
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/table.css">
+  <link rel="stylesheet" href="styles/components.css">
+
+  <!-- Supabase JS Library (Chạy trực tiếp trên trình duyệt & GitHub Pages) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            <rect x="3" y="3" width="18" height="18" rx="4" stroke-width="1.8"/>
+            <polyline points="9 11 12 14 22 4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title">Activity Matrix Tracker</h1>
+          <p class="app-subtitle">Theo dõi thói quen & công việc từng ngày trong tháng</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Month / Year Selector -->
+        <div class="month-navigator">
+          <button id="btn-prev-month" class="btn-icon" title="Tháng trước" aria-label="Tháng trước">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          
+          <div class="month-select-wrapper">
+            <select id="select-month" class="select-header" title="Chọn tháng xem">
+              <option value="1">Tháng 1</option>
+              <option value="2">Tháng 2</option>
+              <option value="3">Tháng 3</option>
+              <option value="4">Tháng 4</option>
+              <option value="5">Tháng 5</option>
+              <option value="6">Tháng 6</option>
+              <option value="7">Tháng 7</option>
+              <option value="8">Tháng 8</option>
+              <option value="9" selected>Tháng 9</option>
+              <option value="10">Tháng 10</option>
+              <option value="11">Tháng 11</option>
+              <option value="12">Tháng 12</option>
+            </select>
+            <select id="select-year" class="select-header" title="Chọn năm">
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
+          </div>
+
+          <button id="btn-next-month" class="btn-icon" title="Tháng sau" aria-label="Tháng sau">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button id="btn-today" class="btn btn-secondary btn-sm" title="Về ngày hôm nay">Hôm nay</button>
+          <span class="badge-month-days" id="badge-month-days">Đầy đủ 30 ngày</span>
+        </div>
+
+        <!-- Right Tool buttons -->
+        <div class="util-actions">
+          <button id="btn-theme-toggle" class="btn-icon" title="Chuyển đổi giao diện Sáng / Tối" aria-label="Đổi theme">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
+          <button id="btn-sound-toggle" class="btn-icon active" title="Bật/Tắt âm thanh click" aria-label="Âm thanh">
+            <svg class="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <svg class="icon-sound-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          </button>
+
+          <!-- Supabase Cloud Sync Button -->
+          <button id="btn-cloud-sync" class="btn btn-secondary btn-sm" title="Cài đặt đồng bộ Cloud Supabase (cho GitHub Pages)">
+            <svg class="cloud-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+            </svg>
+            <span id="cloud-sync-status-text">Cloud Sync</span>
+            <span class="cloud-status-dot" id="cloud-status-dot"></span>
+          </button>
+
+          <!-- More options dropdown / export / import -->
+          <button id="btn-export-data" class="btn btn-secondary btn-sm" title="Xuất dữ liệu dự phòng">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Xuất JSON</span>
+          </button>
+
+          <button id="btn-import-trigger" class="btn btn-secondary btn-sm" title="Nhập dữ liệu đã lưu">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Nhập</span>
+          </button>
+          <input type="file" id="file-import-input" accept=".json" style="display:none;">
+
+          <button id="btn-export-csv" class="btn btn-secondary btn-sm" title="Xuất file CSV mở bằng Excel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>CSV</span>
+          </button>
+
+          <button id="btn-add-activity" class="btn btn-primary" title="Thêm hoạt động mới">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Thêm Hoạt Động</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats Dashboard Section -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon icon-emerald">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Hôm nay hoàn thành</span>
+          <div class="stat-value-group">
+            <span class="stat-value" id="stat-today-rate">0%</span>
+            <span class="stat-sub" id="stat-today-count">0/0 việc</span>
+          </div>
+          <div class="mini-progress-bar">
+            <div class="mini-progress-fill bg-emerald" id="stat-today-bar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-indigo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Tỷ lệ hoàn thành cả tháng</span>
+          <div class="stat-value-group">
+            <span class="stat-value" id="stat-month-rate">0%</span>
+            <span class="stat-sub" id="stat-month-count">0 lượt check</span>
+          </div>
+          <div class="mini-progress-bar">
+            <div class="mini-progress-fill bg-indigo" id="stat-month-bar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Chuỗi ngày dài nhất (Streak)</span>
+          <div class="stat-value-group">
+            <span class="stat-value" id="stat-best-streak">0 ngày</span>
+            <span class="stat-sub" id="stat-streak-habit">Đều đặn nhất</span>
+          </div>
+          <div class="stat-hint">Giữ vững phong độ hàng ngày</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon icon-rose">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Tổng số hoạt động</span>
+          <div class="stat-value-group">
+            <span class="stat-value" id="stat-total-activities">0</span>
+            <span class="stat-sub">Đang theo dõi</span>
+          </div>
+          <div class="stat-hint">Bấm đúp vào tên để sửa</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar: Filter & Search & Fast Scroll -->
+    <div class="table-toolbar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="input-search" placeholder="Tìm kiếm hoạt động..." autocomplete="off">
+      </div>
+
+      <div class="category-filter-chips" id="category-filter-container">
+        <!-- Dynamically filled: All, Sức khỏe, Công việc, Học tập... -->
+      </div>
+
+      <!-- Quick Day Range Filter -->
+      <div class="days-view-selector" id="days-view-container">
+        <button type="button" class="day-range-btn active" data-range="all" title="Xem đầy đủ toàn bộ các ngày trong tháng">📅 Xem Cả Tháng</button>
+        <button type="button" class="day-range-btn" data-range="first" title="Xem ngày 1 đến ngày 15">Ngày 1 - 15</button>
+        <button type="button" class="day-range-btn" data-range="second" title="Xem ngày 16 đến cuối tháng">Ngày 16 - Hết</button>
+      </div>
+
+      <div class="toolbar-hint">
+        <span class="badge-hint"><span class="keyboard-key">Click</span> để tick</span>
+        <span class="badge-hint"><span class="keyboard-key">Chuột phải / 💬</span> nhập lý do</span>
+        <span class="badge-hint"><span class="keyboard-key">Bấm đúp</span> sửa tên</span>
+      </div>
+    </div>
+
+    <!-- Main Activity Matrix Table Wrapper -->
+    <main class="matrix-container" id="matrix-scroll-wrapper">
+      <table class="matrix-table" id="matrix-table">
+        <thead id="matrix-thead">
+          <!-- Dynamic Header Rows Generated by JS:
+               Row 1: Days of month + Weekday + Date number
+               Row 2: Completion rate / status per day
+          -->
+        </thead>
+        <tbody id="matrix-tbody">
+          <!-- Dynamic Activity Rows Generated by JS:
+               Sticky Col: Activity Info (Icon, Color, Name inline-editable, Category, Actions)
+               Cols 1..31: Interactive Checkbox Cells
+               Summary Col: Total completed, % and Streak
+          -->
+        </tbody>
+        <tfoot id="matrix-tfoot">
+          <!-- Daily Summary Row: Total finished today, % bar for each day -->
+        </tfoot>
+      </table>
+    </main>
+
+    <!-- Footer Note -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span>Dữ liệu được tự động lưu trữ trên trình duyệt của bạn (Local Storage).</span>
+      </div>
+      <div class="footer-right">
+        <button id="btn-reset-demo" class="btn-text">Khôi phục dữ liệu mẫu</button>
+        <span class="divider">•</span>
+        <button id="btn-clear-all" class="btn-text text-danger">Xóa toàn bộ</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal: Add / Edit Activity -->
+  <div class="modal-backdrop" id="activity-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Thêm Hoạt Động Mới</h3>
+        <button class="btn-icon modal-close" id="btn-modal-close" aria-label="Đóng">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="activity-form" class="modal-body">
+        <input type="hidden" id="form-activity-id">
+
+        <div class="form-group">
+          <label for="form-activity-name">Tên hoạt động / thói quen <span class="required">*</span></label>
+          <input type="text" id="form-activity-name" class="form-control" placeholder="Ví dụ: Đọc sách 30 phút, Chạy bộ 3km..." required autofocus>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="form-activity-category">Danh mục</label>
+            <select id="form-activity-category" class="form-control">
+              <option value="Sức khỏe">🏃 Sức khỏe & Thể thao</option>
+              <option value="Học tập">📚 Học tập & Phát triển</option>
+              <option value="Công việc">💼 Công việc & Dự án</option>
+              <option value="Đời sống">🧘 Đời sống & Tinh thần</option>
+              <option value="Tài chính">💰 Tài chính & Quản lý</option>
+              <option value="Khác">✨ Khác</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Màu sắc nhận diện</label>
+            <div class="color-picker-palette" id="color-picker-container">
+              <!-- Preset Colors -->
+              <button type="button" class="color-swatch active" data-color="#6366f1" style="--c: #6366f1;"></button>
+              <button type="button" class="color-swatch" data-color="#10b981" style="--c: #10b981;"></button>
+              <button type="button" class="color-swatch" data-color="#f59e0b" style="--c: #f59e0b;"></button>
+              <button type="button" class="color-swatch" data-color="#ec4899" style="--c: #ec4899;"></button>
+              <button type="button" class="color-swatch" data-color="#06b6d4" style="--c: #06b6d4;"></button>
+              <button type="button" class="color-swatch" data-color="#8b5cf6" style="--c: #8b5cf6;"></button>
+              <button type="button" class="color-swatch" data-color="#ef4444" style="--c: #ef4444;"></button>
+            </div>
+            <input type="hidden" id="form-activity-color" value="#6366f1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-activity-desc">Ghi chú mục tiêu (tùy chọn)</label>
+          <input type="text" id="form-activity-desc" class="form-control" placeholder="Mục tiêu tối thiểu mỗi ngày, lý do thực hiện...">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-modal-cancel">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="btn-modal-submit">Lưu Hoạt Động</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Nhập Lý Do / Ghi Chú cho Checkbox -->
+  <div class="modal-backdrop" id="note-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">📝 Ghi Chú & Lý Do</h3>
+          <p class="modal-subtitle" id="note-modal-subtitle" style="font-size:0.8125rem; color:var(--text-muted); margin-top:2px;">Hoạt động • Ngày</p>
+        </div>
+        <button class="btn-icon modal-close" id="btn-note-modal-close" aria-label="Đóng">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="note-form" class="modal-body">
+        <input type="hidden" id="note-act-id">
+        <input type="hidden" id="note-date-key">
+
+        <!-- Checkbox status toggle inside modal -->
+        <div class="form-group">
+          <label class="modal-check-label" style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-weight:600; color:var(--text-main);">
+            <input type="checkbox" id="note-check-status" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+            <span>Đã hoàn thành hoạt động này</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="cell-note-input">Lý do / Ghi chú chi tiết</label>
+          <textarea id="cell-note-input" class="form-control" rows="3" placeholder="Nhập lý do hoàn thành, cảm nhận, hoặc lý do chưa thực hiện được... (Nhấn Enter hoặc click Lưu)"></textarea>
+        </div>
+
+        <!-- Quick Reason Suggestions -->
+        <div class="form-group">
+          <label style="font-size:0.75rem; color:var(--text-faint);">Gợi ý lý do nhanh (nhấp để chọn):</label>
+          <div class="quick-tags-container" id="quick-tags-container">
+            <button type="button" class="quick-tag-btn" data-text="Hoàn thành vượt mục tiêu 🎯">🎯 Vượt mục tiêu</button>
+            <button type="button" class="quick-tag-btn" data-text="Bận công việc / tăng ca ⏳">⏳ Bận công việc</button>
+            <button type="button" class="quick-tag-btn" data-text="Thời tiết xấu không thuận lợi 🌧️">🌧️ Thời tiết xấu</button>
+            <button type="button" class="quick-tag-btn" data-text="Sức khỏe không tốt / bị ốm 🤒">🤒 Bị ốm / Mệt</button>
+            <button type="button" class="quick-tag-btn" data-text="Đi du lịch / công tác ✈️">✈️ Đi du lịch/công tác</button>
+            <button type="button" class="quick-tag-btn" data-text="Quên mất cần khắc phục ⏰">⏰ Quên mất</button>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button type="button" class="btn btn-text text-danger" id="btn-note-delete" style="display:none;">Xóa lý do</button>
+          <div style="display:flex; gap:0.5rem; margin-left:auto;">
+            <button type="button" class="btn btn-secondary" id="btn-note-modal-cancel">Hủy</button>
+            <button type="submit" class="btn btn-primary" id="btn-note-modal-submit">Lưu Lý Do</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Cài đặt Đồng bộ Cloud (Supabase) -->
+  <div class="modal-backdrop" id="cloud-modal">
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">☁️ Đồng Bộ Cloud (Supabase)</h3>
+          <p class="modal-subtitle" style="font-size:0.8125rem; color:var(--text-muted); margin-top:2px;">Dùng dữ liệu đồng bộ khi đưa lên GitHub Pages hoặc mở trên điện thoại</p>
+        </div>
+        <button class="btn-icon modal-close" id="btn-cloud-modal-close" aria-label="Đóng">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="cloud-form" class="modal-body">
+        <div class="cloud-status-banner" id="cloud-status-banner">
+          <span class="cloud-status-badge" id="cloud-status-badge">⚪ Chưa kết nối</span>
+          <span style="font-size:0.8125rem; color:var(--text-muted);" id="cloud-last-sync-text">Dữ liệu đang lưu tạm ở trình duyệt (LocalStorage)</span>
+        </div>
+
+        <div class="form-group">
+          <label for="supabase-url">Supabase Project URL <span class="required">*</span></label>
+          <input type="url" id="supabase-url" class="form-control" value="https://duigsircctipwrsvsgfs.supabase.co" required>
+        </div>
+
+        <div class="form-group">
+          <label for="supabase-key">Supabase Anon Public Key <span class="required">*</span></label>
+          <input type="password" id="supabase-key" class="form-control" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1aWdzaXJjY3RpcHdyc3ZzZ2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.3tIe8NATewxttQxBumpGoI2WWWOTVvGA9It4KbYL7gI" required>
+        </div>
+
+        <!-- Hướng dẫn SQL 10s -->
+        <details class="cloud-guide-box" style="background:var(--bg-surface-elevated); padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); font-size:0.8125rem;">
+          <summary style="cursor:pointer; font-weight:600; color:var(--primary);">📖 Xem hướng dẫn tạo bảng Supabase (3 bước đơn giản)</summary>
+          <div style="margin-top:0.6rem; color:var(--text-muted); line-height:1.5;">
+            <p>1. Đăng ký tài khoản miễn phí tại <a href="https://supabase.com" target="_blank" style="color:var(--primary); text-decoration:underline;">supabase.com</a> và tạo 1 Project mới.</p>
+            <p style="margin-top:4px;">2. Vào menu <strong>SQL Editor</strong>, dán đoạn lệnh sau và bấm <strong>Run</strong>:</p>
+            <pre style="background:rgba(0,0,0,0.3); padding:0.5rem; border-radius:4px; margin:6px 0; overflow-x:auto; color:#a7f3d0; font-size:0.75rem;">create table if not exists habit_data (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table habit_data enable row level security;
+create policy "Allow public access" on habit_data for all using (true) with check (true);</pre>
+            <p>3. Vào <strong>Project Settings</strong> ➔ <strong>API</strong>, sao chép <strong>Project URL</strong> và <strong>anon public key</strong> dán vào 2 ô trên.</p>
+          </div>
+        </details>
+
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button type="button" class="btn btn-text text-danger" id="btn-cloud-disconnect" style="display:none;">Ngắt kết nối</button>
+          <div style="display:flex; gap:0.5rem; margin-left:auto;">
+            <button type="button" class="btn btn-secondary" id="btn-cloud-sync-now" style="display:none;">Đồng bộ ngay</button>
+            <button type="submit" class="btn btn-primary" id="btn-cloud-save">Kết Nối & Lưu</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts (Chạy trực tiếp được trên cả file:/// và http://) -->
+  <script src="js/app.js"></script>
+</body>
+</html>
